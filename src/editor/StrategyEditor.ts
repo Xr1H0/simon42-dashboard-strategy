@@ -72,6 +72,7 @@ class Simon42DashboardStrategyEditor extends LitElement {
   // Entity search state (NOT @state — we call requestUpdate manually)
   private _favoriteSearch = '';
   private _roomPinSearch = '';
+  private _bannerSearch = '';
 
   // Cache for loaded area entities (avoid re-fetching on every render)
   private _areaEntitiesCache = new Map<string, {
@@ -1027,6 +1028,7 @@ class Simon42DashboardStrategyEditor extends LitElement {
         ${this._renderSectionOrderPanel()}
         ${this._renderCustomCardsSection()}
         ${this._renderCustomBadgesSection()}
+        ${this._renderBannerSection()}
         ${this._renderCustomViewsSection()}
       </div>
     `;
@@ -1638,6 +1640,73 @@ class Simon42DashboardStrategyEditor extends LitElement {
     `;
   }
 
+  private _renderBannerSection(): TemplateResult {
+    const bannerEntity = this._config.banner_entity;
+    const alertType = this._config.banner_alert_type || 'info';
+    const allEntities = this._getAllEntitiesForSelect();
+    const entityMap = new Map(allEntities.map((e) => [e.entity_id, e]));
+    const filteredEntities = this._getFilteredEntities(this._bannerSearch);
+    const currentEntity = bannerEntity ? entityMap.get(bannerEntity) : undefined;
+    const currentName = currentEntity?.name || bannerEntity;
+
+    return html`
+      <div class="section">
+        <div class="section-title">${localize('editor.section_banner')}</div>
+        <div class="description">${localize('editor.banner_desc')}</div>
+
+        ${bannerEntity ? html`
+          <div class="form-row" style="margin-bottom: 8px;">
+            <label style="min-width: 120px; margin-right: 8px;">${localize('editor.banner_entity_label')}</label>
+            <div class="entity-list-item" style="flex: 1; cursor: default;">
+              <span class="item-info">
+                <span class="item-name">${currentName}</span>
+                <span class="item-entity-id">${bannerEntity}</span>
+              </span>
+              <button class="btn-remove" @click=${this._clearBannerEntity}>&#x2715;</button>
+            </div>
+          </div>
+
+          <div class="form-row" style="margin-top: 8px;">
+            <label for="banner-alert-type" style="min-width: 120px; margin-right: 8px;">${localize('editor.banner_alert_type_label')}</label>
+            <select id="banner-alert-type" style="flex: 1;" @change=${this._bannerAlertTypeChanged}>
+              <option value="info" ?selected=${alertType === 'info'}>${localize('editor.banner_alert_info')}</option>
+              <option value="warning" ?selected=${alertType === 'warning'}>${localize('editor.banner_alert_warning')}</option>
+              <option value="error" ?selected=${alertType === 'error'}>${localize('editor.banner_alert_error')}</option>
+              <option value="success" ?selected=${alertType === 'success'}>${localize('editor.banner_alert_success')}</option>
+            </select>
+          </div>
+        ` : html`
+          <div class="form-row" style="margin-bottom: 4px;">
+            <label style="min-width: 120px; margin-right: 8px;">${localize('editor.banner_entity_label')}</label>
+            <span class="description" style="margin: 0;">${localize('editor.banner_entity_none')}</span>
+          </div>
+        `}
+
+        <div class="entity-search-picker" style="margin-top: 8px;">
+          <input type="text" class="entity-search-input"
+            placeholder=${localize('editor.banner_entity_placeholder')}
+            .value=${this._bannerSearch}
+            @input=${(e: Event) => { this._bannerSearch = (e.target as HTMLInputElement).value; this.requestUpdate(); }}
+            @blur=${() => { setTimeout(() => { this._bannerSearch = ''; this.requestUpdate(); }, 200); }}
+          />
+          ${this._bannerSearch.length >= 2 ? html`
+            <div class="entity-search-results">
+              ${filteredEntities.length > 0
+                ? filteredEntities.map((entity) => html`
+                  <div class="entity-search-result" @mousedown=${(e: Event) => { e.preventDefault(); this._setBannerEntity(entity.entity_id); this._bannerSearch = ''; this.requestUpdate(); }}>
+                    <span class="entity-search-name">${entity.name}</span>
+                    <span class="entity-search-id">${entity.entity_id}</span>
+                  </div>
+                `)
+                : html`<div class="entity-search-no-results">${localize('editor.no_results')}</div>`
+              }
+            </div>
+          ` : nothing}
+        </div>
+      </div>
+    `;
+  }
+
   private _renderCustomViewsSection(): TemplateResult {
     const customViews = this._config.custom_views || [];
 
@@ -2186,6 +2255,31 @@ class Simon42DashboardStrategyEditor extends LitElement {
       delete newConfig.alarm_entity;
     }
 
+    this._config = newConfig;
+    this._fireConfigChanged(newConfig);
+  }
+
+  private _setBannerEntity(entityId: string): void {
+    if (!this._hass) return;
+    const newConfig: Simon42StrategyConfig = { ...this._config, banner_entity: entityId };
+    this._config = newConfig;
+    this._fireConfigChanged(newConfig);
+  }
+
+  private _clearBannerEntity(): void {
+    if (!this._hass) return;
+    const newConfig: Simon42StrategyConfig = { ...this._config };
+    delete newConfig.banner_entity;
+    delete newConfig.banner_alert_type;
+    this._config = newConfig;
+    this._fireConfigChanged(newConfig);
+  }
+
+  private _bannerAlertTypeChanged(e: Event): void {
+    if (!this._hass) return;
+    const value = (e.target as HTMLSelectElement).value as 'info' | 'warning' | 'error' | 'success';
+    const newConfig: Simon42StrategyConfig = { ...this._config, banner_alert_type: value };
+    if (value === 'info') delete newConfig.banner_alert_type;
     this._config = newConfig;
     this._fireConfigChanged(newConfig);
   }

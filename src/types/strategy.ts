@@ -79,6 +79,10 @@ export interface Simon42StrategyConfig {
 
   // Custom badges (shown in header next to person chips)
   custom_badges?: CustomBadge[];
+
+  // Banner / notification (shown full-width at top of every view)
+  banner_entity?: string;
+  banner_alert_type?: 'info' | 'warning' | 'error' | 'success';
 }
 
 // -- Area Management --------------------------------------------------

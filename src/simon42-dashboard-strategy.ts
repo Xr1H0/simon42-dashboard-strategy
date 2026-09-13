@@ -10,7 +10,7 @@ import type { HomeAssistant } from './types/homeassistant';
 import type { Simon42StrategyConfig } from './types/strategy';
 import type { LovelaceConfig, LovelaceViewConfig } from './types/lovelace';
 
-const STRATEGY_VERSION = '1.3.4-beta.9';
+const STRATEGY_VERSION = '1.3.4-beta.10';
 
 const DEBUG = new URLSearchParams(window.location.search).has('s42_debug');
 const T0 = performance.now();
@@ -137,6 +137,20 @@ class Simon42DashboardStrategy extends HTMLElement {
           path: cv.path,
           icon: cv.icon || 'mdi:card-text-outline',
         });
+      }
+    }
+
+    // Inject banner section at the top of every view when configured
+    if (config.banner_entity) {
+      const { createBannerSection } = await import('./utils/view-builder');
+      const bannerSection = createBannerSection(
+        config.banner_entity,
+        config.banner_alert_type ?? 'info'
+      );
+      for (const view of views) {
+        if (view.sections) {
+          view.sections.unshift(bannerSection);
+        }
       }
     }
 

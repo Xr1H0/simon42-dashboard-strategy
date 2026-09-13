@@ -225,6 +225,16 @@
     "badges_select_entity": "Entity auswählen...",
     "badges_remove": "Entfernen",
     "badges_show_name": "Entity-Name auf Badge anzeigen",
-    "badges_name_short": "Name"
+    "badges_name_short": "Name",
+    "section_banner": "Banner",
+    "banner_desc": "Zeigt oben auf jeder Seite einen vollbreiten Benachrichtigungs-Banner an. Der Banner wird automatisch ausgeblendet, wenn der Entitäts-Status leer ist.",
+    "banner_entity_label": "Banner-Entität:",
+    "banner_entity_none": "Keine (Banner deaktiviert)",
+    "banner_entity_placeholder": "Entität suchen...",
+    "banner_alert_type_label": "Alert-Typ:",
+    "banner_alert_info": "Info",
+    "banner_alert_warning": "Warnung",
+    "banner_alert_error": "Fehler",
+    "banner_alert_success": "Erfolg"
   }
 }

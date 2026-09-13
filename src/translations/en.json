@@ -225,6 +225,16 @@
     "badges_select_entity": "Select entity...",
     "badges_remove": "Remove",
     "badges_show_name": "Show entity name on badge",
-    "badges_name_short": "Name"
+    "badges_name_short": "Name",
+    "section_banner": "Banner",
+    "banner_desc": "Show a full-width notification banner at the top of every page. The banner is hidden automatically when the entity state is empty.",
+    "banner_entity_label": "Banner entity:",
+    "banner_entity_none": "None (banner disabled)",
+    "banner_entity_placeholder": "Search entity...",
+    "banner_alert_type_label": "Alert type:",
+    "banner_alert_info": "Info",
+    "banner_alert_warning": "Warning",
+    "banner_alert_error": "Error",
+    "banner_alert_success": "Success"
   }
 }
